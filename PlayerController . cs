@@ -1,0 +1,28 @@
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    public float speed = 5f;
+    public GameObject bullet;
+    public Transform firePoint;
+
+    void Update()
+    {
+        // Chalna - WASD ya Joystick
+        float moveX = Input.GetAxis("Horizontal");
+        float moveZ = Input.GetAxis("Vertical");
+        transform.Translate(new Vector3(moveX, 0, moveZ) * speed * Time.deltaTime);
+
+        // Goli chalana - Space dabao
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            Shoot();
+        }
+    }
+
+    void Shoot()
+    {
+        Instantiate(bullet, firePoint.position, firePoint.rotation);
+        Debug.Log("AMROHA KING GOLI CHALI! 🦁");
+    }
+}
