@@ -19,33 +19,49 @@ canvas {background: #1a1a1a; border: 3px solid red; margin-top: 10px;}
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-// Player
 let player = {x: 200, y: 550, w: 30, h: 30, speed: 5};
 let bullets = [];
+let enemies = [];
+let score = 0;
 let keys = {};
 
-// Controls
+// Har 1 second me naya dushman
+setInterval(() => {
+    enemies.push({x: Math.random() * 370, y: 0, w: 30, h: 30, speed: 2});
+}, 1000);
+
 document.addEventListener('keydown', e => keys[e.key] = true);
 document.addEventListener('keyup', e => keys[e.key] = false);
 
 function update() {
-    // Move player
     if(keys['w'] || keys['W']) player.y -= player.speed;
     if(keys['s'] || keys['S']) player.y += player.speed;
     if(keys['a'] || keys['A']) player.x -= player.speed;
     if(keys['d'] || keys['D']) player.x += player.speed;
-    
-    // Shoot
+
     if(keys[' ']) {
         bullets.push({x: player.x + 15, y: player.y, speed: 8});
-        keys[' '] = false; // 1 goli 1 baar
+        keys[' '] = false;
     }
 
-    // Move bullets
     bullets.forEach(b => b.y -= b.speed);
+    enemies.forEach(e => e.y += e.speed);
     bullets = bullets.filter(b => b.y > 0);
+    enemies = enemies.filter(e => e.y < 600);
 
-    // Border
+    // Goli dushman ko lagi kya?
+    for(let bi = bullets.length-1; bi >= 0; bi--) {
+        for(let ei = enemies.length-1; ei >= 0; ei--) {
+            let b = bullets[bi], e = enemies[ei];
+            if(b && e && b.x < e.x + e.w && b.x + 5 > e.x && b.y < e.y + e.h && b.y + 10 > e.y) {
+                bullets.splice(bi, 1);
+                enemies.splice(ei, 1);
+                score += 10;
+                break;
+            }
+        }
+    }
+
     if(player.x < 0) player.x = 0;
     if(player.x > 370) player.x = 370;
     if(player.y < 0) player.y = 0;
@@ -54,16 +70,27 @@ function update() {
 
 function draw() {
     ctx.clearRect(0, 0, 400, 600);
-    
-    // Player - Lion
+
+    // Player
     ctx.fillStyle = 'yellow';
     ctx.fillRect(player.x, player.y, player.w, player.h);
-    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
     ctx.fillText('🦁', player.x + 5, player.y + 22);
-    
+
     // Bullets
     ctx.fillStyle = 'red';
     bullets.forEach(b => ctx.fillRect(b.x, b.y, 5, 10));
+
+    // Enemies
+    ctx.fillStyle = 'green';
+    enemies.forEach(e => {
+        ctx.fillRect(e.x, e.y, e.w, e.h);
+        ctx.fillText('👹', e.x + 5, e.y + 22);
+    });
+
+    // Score
+    ctx.fillStyle = 'white';
+    ctx.fillText('Score: ' + score, 10, 30);
 }
 
 function gameLoop() {
