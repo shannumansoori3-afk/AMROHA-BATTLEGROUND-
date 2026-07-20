@@ -4,18 +4,76 @@
 <title>AMROHA BATTLEGROUND</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body {background: black; color: yellow; text-align: center; font-family: Arial;}
-h1 {font-size: 40px; text-shadow: 0 0 10px red;}
-.btn {background: red; color: white; padding: 15px 30px; border: none; font-size: 20px; border-radius: 10px; margin: 10px;}
+body {background: #000; color: #fff; text-align: center; font-family: Arial; margin: 0; overflow: hidden;}
+h1 {color: yellow; text-shadow: 0 0 10px red; margin: 10px;}
+canvas {background: #1a1a1a; border: 3px solid red; margin-top: 10px;}
+#info {color: green; font-size: 18px;}
 </style>
 </head>
 <body>
 <h1>🦁 AMROHA BATTLEGROUND 👑</h1>
-<p><b>Apna Sheher, Apna Yudh!</b></p>
-<p>Free Fire jaisa maza, par map apna Amroha ka.<br>Mandi, Station, Park sab hoga.</p>
-<img src="https://via.placeholder.com/300x200/ff0000/ffffff?text=GAME+POSTER" width="90%">
-<br><br>
-<button class="btn">Coming Soon</button>
-<p>Unity 3D Mobile Game by King</p>
+<p id="info">W A S D se chalo | Space se goli</p>
+<canvas id="game" width="400" height="600"></canvas>
+
+<script>
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+
+// Player
+let player = {x: 200, y: 550, w: 30, h: 30, speed: 5};
+let bullets = [];
+let keys = {};
+
+// Controls
+document.addEventListener('keydown', e => keys[e.key] = true);
+document.addEventListener('keyup', e => keys[e.key] = false);
+
+function update() {
+    // Move player
+    if(keys['w'] || keys['W']) player.y -= player.speed;
+    if(keys['s'] || keys['S']) player.y += player.speed;
+    if(keys['a'] || keys['A']) player.x -= player.speed;
+    if(keys['d'] || keys['D']) player.x += player.speed;
+    
+    // Shoot
+    if(keys[' ']) {
+        bullets.push({x: player.x + 15, y: player.y, speed: 8});
+        keys[' '] = false; // 1 goli 1 baar
+    }
+
+    // Move bullets
+    bullets.forEach(b => b.y -= b.speed);
+    bullets = bullets.filter(b => b.y > 0);
+
+    // Border
+    if(player.x < 0) player.x = 0;
+    if(player.x > 370) player.x = 370;
+    if(player.y < 0) player.y = 0;
+    if(player.y > 570) player.y = 570;
+}
+
+function draw() {
+    ctx.clearRect(0, 0, 400, 600);
+    
+    // Player - Lion
+    ctx.fillStyle = 'yellow';
+    ctx.fillRect(player.x, player.y, player.w, player.h);
+    ctx.fillStyle = 'black';
+    ctx.fillText('🦁', player.x + 5, player.y + 22);
+    
+    // Bullets
+    ctx.fillStyle = 'red';
+    bullets.forEach(b => ctx.fillRect(b.x, b.y, 5, 10));
+}
+
+function gameLoop() {
+    update();
+    draw();
+    requestAnimationFrame(gameLoop);
+}
+gameLoop();
+</script>
+
+<p><b>King ka Game Live Hai!</b></p>
 </body>
 </html>
